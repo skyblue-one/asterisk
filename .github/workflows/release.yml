@@ -1,0 +1,45 @@
+name: release
+
+on:
+  push:
+    branches: [skyblue/v1]
+
+permissions:
+  contents: write
+
+jobs:
+  semver:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install commitizen
+        run: pip install -r requirements-dev.txt
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Tag initial version if missing
+        run: |
+          set -euo pipefail
+          VERSION="$(cz version --project)"
+          if ! git rev-parse "v${VERSION}" >/dev/null 2>&1; then
+            git tag -a "v${VERSION}" -m "chore(release): ${VERSION}"
+            git push origin "v${VERSION}"
+          fi
+
+      - name: Bump SemVer and changelog
+        run: |
+          set -euo pipefail
+          # 17 = no commits to bump, 21 = no increment
+          cz -nr 17,21 bump --yes
+          git push origin "HEAD:skyblue/v1" --follow-tags

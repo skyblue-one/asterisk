@@ -1,3 +1,13 @@
+# Skyblue Asterisk
+
+Fork of Asterisk for [skyblue-one](https://github.com/skyblue-one).
+Product SemVer is independent of the upstream pin in [`.version`](.version).
+
+- Upstream sync and probe: [upstream.md](upstream.md)
+- Commits: Conventional Commits via `cz commit` (see [upstream.md](upstream.md))
+
+---
+
 # The Asterisk(R) Open Source PBX
 
 ```

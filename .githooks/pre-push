@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+# Reject non-conventional commits in the range being pushed to skyblue/v1.
+while read -r local_ref local_sha remote_ref remote_sha; do
+  case "$remote_ref" in
+    refs/heads/skyblue/v1) ;;
+    *) continue ;;
+  esac
+  if [ "$local_sha" = "0000000000000000000000000000000000000000" ]; then
+    continue
+  fi
+  if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+    range="$local_sha"
+    # first push: check commits not in upstream pin
+    base="$(cat .version 2>/dev/null || true)"
+    if [ -n "$base" ] && git rev-parse "$base" >/dev/null 2>&1; then
+      range="${base}..${local_sha}"
+    fi
+  else
+    range="${remote_sha}..${local_sha}"
+  fi
+  if ! command -v cz >/dev/null 2>&1; then
+    echo "cz not found; run ./scripts/setup-dev.sh" >&2
+    exit 1
+  fi
+  # Only check our commits (exclude pure upstream history on first setup)
+  if git log --format=%H "$range" 2>/dev/null | head -1 | grep -q .; then
+    cz check --rev-range "$range" || exit 1
+  fi
+done

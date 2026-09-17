@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+if ! command -v cz >/dev/null 2>&1; then
+  echo "cz not found; run ./scripts/setup-dev.sh" >&2
+  exit 1
+fi
+cz check --commit-msg-file "$1"
