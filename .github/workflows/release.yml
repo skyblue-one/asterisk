@@ -31,6 +31,7 @@ jobs:
       - name: Tag initial version if missing
         run: |
           set -euo pipefail
+          git fetch origin --tags --force
           VERSION="$(cz version --project)"
           if ! git rev-parse "v${VERSION}" >/dev/null 2>&1; then
             git tag -a "v${VERSION}" -m "chore(release): ${VERSION}"
@@ -40,10 +41,24 @@ jobs:
       - name: Bump SemVer and changelog
         run: |
           set -euo pipefail
+          git fetch origin --tags --force
+
+          # Drop SemVer tags not on this history (left over after force-push).
+          for t in $(git tag -l 'v[0-9]*'); do
+            if ! git merge-base --is-ancestor "$t" HEAD 2>/dev/null; then
+              git tag -d "$t" || true
+            fi
+          done
+
+          if git log -1 --format=%s | grep -q '^chore(release):'; then
+            echo "skip: already a release commit"
+            exit 0
+          fi
+
           # 3 = no commits found, 17 = no commits to bump, 21 = no increment
           cz -nr 3,17,21 bump --yes
           VERSION="$(cz version --project)"
           git push origin "HEAD:skyblue/v1"
           if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
-            git push origin "v${VERSION}"
+            git push origin "refs/tags/v${VERSION}"
           fi
