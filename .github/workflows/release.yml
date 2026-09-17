@@ -42,4 +42,8 @@ jobs:
           set -euo pipefail
           # 3 = no commits found, 17 = no commits to bump, 21 = no increment
           cz -nr 3,17,21 bump --yes
-          git push origin "HEAD:skyblue/v1" --follow-tags
+          VERSION="$(cz version --project)"
+          git push origin "HEAD:skyblue/v1"
+          if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
+            git push origin "v${VERSION}"
+          fi
