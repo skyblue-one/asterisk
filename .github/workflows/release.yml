@@ -40,6 +40,6 @@ jobs:
       - name: Bump SemVer and changelog
         run: |
           set -euo pipefail
-          # 17 = no commits to bump, 21 = no increment
-          cz -nr 17,21 bump --yes
+          # 3 = no commits found, 17 = no commits to bump, 21 = no increment
+          cz -nr 3,17,21 bump --yes
           git push origin "HEAD:skyblue/v1" --follow-tags
