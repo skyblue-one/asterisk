@@ -12,6 +12,12 @@ Versioning follows [SemVer](https://semver.org/). Upstream Asterisk pin: [`.vers
 - Product line on Certified Asterisk `certified-22.8-cert4`
 - Upstream policy, conventional commits, SemVer bump CI
 
+## v1.0.4 (2026-09-17)
+
+### Fix
+
+- strip agent attribution trailers in commit-msg hook
+
 ## v1.0.3 (2026-09-17)
 
 ### Fix
