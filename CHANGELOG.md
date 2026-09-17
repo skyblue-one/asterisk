@@ -12,6 +12,12 @@ Versioning follows [SemVer](https://semver.org/). Upstream Asterisk pin: [`.vers
 - Product line on Certified Asterisk `certified-22.8-cert4`
 - Upstream policy, conventional commits, SemVer bump CI
 
+## v1.0.2 (2026-09-17)
+
+### Fix
+
+- ignore upstream tags in commitizen
+
 ## v1.0.1 (2026-09-17)
 
 ### Fix
