@@ -1,7 +1,31 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
+MSG_FILE="$1"
+
+# Strip IDE/agent attribution trailers (must not land in this repo).
+sed -i \
+  -e '/^Co-authored-by: Cursor <cursoragent@cursor.com>$/d' \
+  -e '/^Made-with: Cursor$/d' \
+  -e '/^Made with Cursor$/d' \
+  "$MSG_FILE"
+
+# Drop trailing blank lines left by trailer removal.
+tmp="$(mktemp)"
+# shellcheck disable=SC2016
+awk '
+  { lines[NR] = $0 }
+  END {
+    end = NR
+    while (end > 0 && lines[end] ~ /^[[:space:]]*$/) end--
+    for (i = 1; i <= end; i++) print lines[i]
+    if (end > 0) print ""
+  }
+' "$MSG_FILE" >"$tmp"
+mv "$tmp" "$MSG_FILE"
+
 if ! command -v cz >/dev/null 2>&1; then
   echo "cz not found; run ./scripts/setup-dev.sh" >&2
   exit 1
 fi
-cz check --commit-msg-file "$1"
+cz check --commit-msg-file "$MSG_FILE"
