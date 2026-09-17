@@ -37,8 +37,19 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
           VERSION="${{ steps.cz.outputs.version }}"
-          gh release create "v${VERSION}" \
-            --title "v${VERSION}" \
+          TAG="v${VERSION}"
+          # Only publish when this job just landed the SemVer tag on HEAD.
+          if ! git describe --exact-match --tags HEAD 2>/dev/null | grep -qx "$TAG"; then
+            echo "skip: HEAD is not ${TAG}"
+            exit 0
+          fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "skip: ${TAG} release already exists"
+            exit 0
+          fi
+          gh release create "$TAG" \
+            --title "$TAG" \
             --generate-notes \
             --verify-tag
