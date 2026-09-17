@@ -1,0 +1,48 @@
+name: ci
+
+on:
+  pull_request:
+    branches: [skyblue/v1]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  conventional-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install commitizen
+        run: pip install -r requirements-dev.txt
+
+      - name: Check commits
+        run: |
+          set -euo pipefail
+          BASE="$(tr -d '[:space:]' < .version)"
+          RANGE="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          mapfile -t COMMITS < <(git rev-list --reverse "$RANGE")
+          FAILED=0
+          for c in "${COMMITS[@]}"; do
+            if git merge-base --is-ancestor "$c" "$BASE" 2>/dev/null; then
+              continue
+            fi
+            tmp="$(mktemp)"
+            git log -1 --format=%B "$c" >"$tmp"
+            if ! cz check --commit-msg-file "$tmp"; then
+              echo "non-conventional: $c"
+              FAILED=1
+            fi
+            rm -f "$tmp"
+          done
+          exit "$FAILED"

@@ -6,5 +6,6 @@ on:
 
 jobs:
   PRAction:
+    if: github.repository == 'asterisk/asterisk'
     name: "Action"
     uses: asterisk/asterisk-ci-actions/.github/workflows/AsteriskPRAction.yml@main

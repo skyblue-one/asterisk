@@ -17,6 +17,7 @@ on:
 
 jobs:
   NightlyTests:
+    if: github.repository == 'asterisk/asterisk'
     name: NightlyTests
     uses: asterisk/asterisk-ci-actions/.github/workflows/AsteriskNightlyTest.yml@main
     with:

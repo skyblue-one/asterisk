@@ -6,6 +6,7 @@ on:
 
 jobs:
   NightlyAdmin:
+    if: github.repository == 'asterisk/asterisk'
     uses: asterisk/asterisk-ci-actions/.github/workflows/AsteriskNightlyAdmin.yml@main
     secrets:
       ASTERISKTEAM_PAT: ${{ secrets.ASTERISKTEAM_PAT }}

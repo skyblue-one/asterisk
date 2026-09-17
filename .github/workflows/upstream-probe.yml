@@ -5,6 +5,10 @@ on:
     - cron: "0 6 * * 1"
   workflow_dispatch:
 
+concurrency:
+  group: upstream-probe
+  cancel-in-progress: true
+
 permissions:
   contents: read
   issues: write
@@ -16,6 +20,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          fetch-tags: true
           ref: skyblue/v1
 
       - name: Fetch upstream tags
@@ -28,7 +33,6 @@ jobs:
         run: |
           set -euo pipefail
           BASE="$(tr -d '[:space:]' < .version)"
-          # certified-22.8-cert4 -> certified-22.8-cert*
           PREFIX="${BASE%-cert*}-cert"
           LATEST="$(git tag -l "${PREFIX}*" | grep -Ev '(rc|pre|alpha|beta)' | sort -V | tail -1)"
           echo "base=$BASE" >> "$GITHUB_OUTPUT"
@@ -45,10 +49,8 @@ jobs:
           set -euo pipefail
           git config user.name "skyblue-ci"
           git config user.email "ci@skyblue.local"
-          BASE="${{ steps.tag.outputs.base }}"
-          LATEST="${{ steps.tag.outputs.latest }}"
-          git checkout -B "probe/${LATEST}"
-          git rebase --onto "$LATEST" "$BASE"
+          git checkout -B "probe/${{ steps.tag.outputs.latest }}"
+          git rebase --onto "${{ steps.tag.outputs.latest }}" "${{ steps.tag.outputs.base }}"
 
       - name: Build
         if: steps.tag.outputs.skip != 'true'

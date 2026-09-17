@@ -63,14 +63,24 @@ cz commit
 ```
 
 Local guard: `./scripts/setup-dev.sh` then commit-msg hook runs `cz check`.
-Remote guard: workflow `conventional-commits` on PRs and pushes to `skyblue/v1`.
+Remote guard: workflow `ci` on PRs to `skyblue/v1`.
 
 ## SemVer and changelog
 
-Product version lives in `.cz.toml` (`version`). Bumped by CI on `skyblue/v1` via `cz bump`.
-Changelog: `CHANGELOG.md`. Tags: `v$version`.
+Product version lives in `.cz.toml` (`version`).
+On push to `skyblue/v1`, workflow `release` runs [commitizen-action](https://github.com/commitizen-tools/commitizen-action) (`cz bump`), updates `CHANGELOG.md`, tags `v$version`, and creates a GitHub Release.
 
 Asterisk pin stays only in `.version`.
+
+## CI layout
+
+| Workflow | Trigger | Role |
+|----------|---------|------|
+| `ci` | PR → `skyblue/v1` | Conventional commit check |
+| `release` | push → `skyblue/v1` | SemVer bump + changelog + GitHub Release |
+| `upstream-probe` | weekly / manual | Probe newer Certified tags; issue on failure |
+
+Upstream Asterisk workflows stay in-tree but only run when `github.repository == 'asterisk/asterisk'`.
 
 ## Upstream probe CI
 

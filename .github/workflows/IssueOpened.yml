@@ -6,6 +6,7 @@ on:
 
 jobs:
   triage:
+    if: github.repository == 'asterisk/asterisk'
     runs-on: ubuntu-latest
     steps:
       - name: initial labeling

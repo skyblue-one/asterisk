@@ -12,7 +12,7 @@ on:
 
 jobs:
   CreateDocs:
-    if: ${{ ( github.event_name == 'schedule' && fromJSON(vars.WIKIDOCS_ENABLE) ) || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.repository == 'asterisk/asterisk' && (( github.event_name == 'schedule' && fromJSON(vars.WIKIDOCS_ENABLE) ) || github.event_name == 'workflow_dispatch') }}
     strategy:
       fail-fast: false
       matrix:

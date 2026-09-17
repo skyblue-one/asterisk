@@ -73,6 +73,7 @@ on:
 
 jobs:
   Releaser:
+    if: github.repository == 'asterisk/asterisk'
     uses: asterisk/asterisk-ci-actions/.github/workflows/AsteriskRelease.yml@main
     with:
       release_type: ${{inputs.release_type}}
